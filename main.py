@@ -7,7 +7,6 @@ class Main():
         except KeyboardInterrupt:
             print("\nSe cerró la aplicación")
         except Exception as e:
-            print("\nError inesperado: "+ str(e))
-        
+            print("\nError inesperado: "+ str(e))        
 
 startApp = Main()
