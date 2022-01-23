@@ -7,5 +7,4 @@ class ListenQueryController():
         listenquery = ListenQuery()
         listenquery.query = query
         listenquery.timecreated = time.time()
-        created = listenquery.save()
-        print(True if created != False else False)
+        listenquery.save()
