@@ -2,8 +2,7 @@ from app.controllers.ListenQueryController import ListenQueryController
 import speech_recognition as sr
 import time
 from sys import exit
-from playsound import playsound 
-
+import playsound
 
 
 class Start():
@@ -12,10 +11,10 @@ class Start():
         self.parler = parler
         self.parler.say('Bienvenido.')
         self.parler.runAndWait()
-        self.limitphrase = 2
+        self.limitphrase = 1
         while True:
             with sr.Microphone() as source:
-                self.recog.adjust_for_ambient_noise(source)
+                self.recog.adjust_for_ambient_noise(source, duration=1)
                 audio = self.recog.listen(
                     source, phrase_time_limit=self.limitphrase)
                 try:
@@ -24,7 +23,6 @@ class Start():
                     if "vamos" in tostart:
                         self.execCommand()
                 except sr.UnknownValueError:
-                    print("Escuchando...")
                     continue
                 except sr.RequestError as e:
                     print("Error: {0}".format(e))
@@ -33,10 +31,10 @@ class Start():
 
     def execCommand(self) -> None:
         while True:
-            playsound("./assets/sounds/sound_one.wav")
+            played = playsound.playsound("./assets/sounds/sound_one.wav")
             with sr.Microphone() as source:
                 self.recog.adjust_for_ambient_noise(source)
-                audio = self.recog.listen(source)
+                audio = self.recog.listen(source, timeout=10)
             try:
                 query = self.recog.recognize_google(audio, language="es-MX")
                 print("Dijiste: {}".format(query))

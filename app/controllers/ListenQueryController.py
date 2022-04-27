@@ -2,6 +2,7 @@ from app.libs.Database import DB
 from app.models.ListenQuery import ListenQuery
 import time
 
+
 class ListenQueryController():
     def __init__(self, query, iduser, parler):
         self.parler = parler
@@ -13,9 +14,15 @@ class ListenQueryController():
         self.query = listenquery
 
     def validateQuery(self):
-        if "salir" in self.query.query and "aplicación" in self.query.query:
+        if self.validateExit() == True:
             return "exit"
-        elif "instalar" in self.query.query:
+        elif self.validateInstall() == True:
             return ("Parece que deseas instalar un módulo. ¿Cómo se llama el módulo?")
-        else:
-            return ("No instalaras un módulo")
+
+    def validateExit(self):
+        if "salir" in self.query.query and "aplicación" in self.query.query:
+            return True
+
+    def validateInstall(self):
+        if "instalar" in self.query.query and "módulo" in self.query.query:
+            return True
