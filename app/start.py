@@ -1,63 +1,69 @@
 from app.controllers.ListenQueryController import ListenQueryController
 import speech_recognition as sr
 import time
+from sys import exit
+from playsound import playsound 
+
+
 
 class Start():
     def __init__(self, parler) -> None:
-        self.parler = parler      
-        self.parler.say('Hola, soy Pámo, tu asistente personal. Me has activado.')
+        self.recog = sr.Recognizer()
+        self.parler = parler
+        self.parler.say('Bienvenido.')
         self.parler.runAndWait()
-
-        print("Ejecutando...")
+        self.limitphrase = 2
         while True:
-            r = sr.Recognizer()
             with sr.Microphone() as source:
-                r.adjust_for_ambient_noise(source)
-                audio = r.listen(source)
-            try:
-                tostart = r.recognize_google(audio, language="es-MX")
-                print("Dijiste: {}".format(tostart))
-                if "vamos" in tostart:
-                    self.execCommand()
-            except sr.UnknownValueError:
-                parler.say("No logro entender lo que dices")
-                parler.runAndWait()
-            except sr.RequestError as e:
-                parler.say("No se pudo conectar con el servidor; {0}".format(e))
-                parler.runAndWait()
-            time.sleep(.2)
+                self.recog.adjust_for_ambient_noise(source)
+                audio = self.recog.listen(
+                    source, phrase_time_limit=self.limitphrase)
+                try:
+                    tostart = self.recog.recognize_google(
+                        audio, language="es-MX")
+                    if "vamos" in tostart:
+                        self.execCommand()
+                except sr.UnknownValueError:
+                    print("Escuchando...")
+                    continue
+                except sr.RequestError as e:
+                    print("Error: {0}".format(e))
+            time.sleep(1)
             continue
 
-
-
     def execCommand(self) -> None:
-        self.parler.say("¿En que te puedo colaborar?")
-        self.parler.runAndWait()
         while True:
-            r = sr.Recognizer()
+            playsound("./assets/sounds/sound_one.wav")
             with sr.Microphone() as source:
-                r.adjust_for_ambient_noise(source)
-                audio = r.listen(source)
+                self.recog.adjust_for_ambient_noise(source)
+                audio = self.recog.listen(source)
             try:
-                tostart = r.recognize_google(audio, language="es-MX")
-                print("Dijiste: {}".format(tostart))
-                query = r.recognize_google(audio, language="es-MX")
+                query = self.recog.recognize_google(audio, language="es-MX")
+                print("Dijiste: {}".format(query))
                 if query != '':
-                    self.parler.say("Estoy examinando como puedo resolver tu petición. Aguarda...")
+                    self.parler.say("Aguarda.")
                     self.parler.runAndWait()
-                    listenquerycontroller = ListenQueryController(query, False, self.parler)
+                    listenquerycontroller = ListenQueryController(
+                        query, False, self.parler)
                     resultquery = listenquerycontroller.validateQuery()
                     print(resultquery)
-                    self.parler.say(resultquery)
-                    self.parler.runAndWait()
+                    if resultquery == 'exit':
+                        self.parler.say("Se cerrará la aplicación")
+                        self.parler.runAndWait()
+                        exit()
+                    else:
+                        self.parler.say(resultquery)
+                        self.parler.runAndWait()
+                    break
                 else:
-                    self.parler.say("Por favor dime que deseas")                
+                    self.parler.say("Por favor dime que deseas")
                     self.parler.runAndWait()
             except sr.UnknownValueError:
                 self.parler.say("No logro entender lo que dices")
                 self.parler.runAndWait()
             except sr.RequestError as e:
-                self.parler.say("No se pudo conectar con el servidor; {0}".format(e))
+                self.parler.say(
+                    "No se pudo conectar con el servidor; {0}".format(e))
                 self.parler.runAndWait()
-            time.sleep(.2)
+            time.sleep(1)
             continue
